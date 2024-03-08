@@ -784,6 +784,27 @@ def paperdatabase():
 
 paperdatabase()
 
+def load():
+    for item in papertree.get_children():
+        papertree.delete(item)
+    conn=sqlite3.connect("Article DataBase.db")
+    c=conn.cursor()
+    c.execute("SELECT *,oid FROM Articles")
+    datas=c.fetchall()
+    for data in datas:
+        papertree.insert(parent='',index='end',text=data[14],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[14])
+        if int(data[14])%2==0:
+            papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
+        elif int(data[14])%3==0:
+            papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
+        elif int(data[14])%3==0 and int(data[14])%2==0:
+            papertree.tag_configure(data[14],background="#f0b9d4",foreground="Black")
+        else:
+            papertree.tag_configure(data[14],background="#c3b9f0",foreground="Black")
+    conn.commit()
+    conn.close()
+
+
 def paperdatabaseentry():
     authornames=""
     i=0
@@ -796,7 +817,7 @@ def paperdatabaseentry():
     c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib)) 
     conn.commit()
     conn.close()
-    
+    load()
 
 
 
@@ -930,17 +951,20 @@ def search():
     try:
         titles=item["message"]['title'][0]
         abstract=item["message"]['abstract'][41:-9]
+        papertitlelable.config(text="")
+        paperabstractlable.config(text="")
         papertitlelable.config(text=titles,wraplength=690,font=my_font1)
         paperabstractlable.config(text=abstract,wraplength=690,font=my_font2)
         paperdatabaseentry()
     except:
         abstract=''
         titles=item["message"]['title'][0]
+        papertitlelable.config(text="")
+        paperabstractlable.config(text="")
         papertitlelable.config(text=titles,wraplength=690,font=my_font1)
         paperdatabaseentry()
     #papertitlelable.config(text="")
     #paperabstractlable.config(text="")
-
 
 
 
@@ -1182,7 +1206,25 @@ papertree.column("Tags",width=120)
 papertree.heading("Tags",text="Tags",anchor=W)
 
 
+conn=sqlite3.connect("Article DataBase.db")
+c=conn.cursor()
+c.execute("SELECT *,oid FROM Articles")
 
+
+datas=c.fetchall()
+
+for data in datas:
+    papertree.insert(parent='',index='end',text=data[14],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[14])
+    if int(data[14])%2==0:
+        papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
+    elif int(data[14])%3==0:
+        papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
+    elif int(data[14])%3==0 and int(data[14])%2==0:
+        papertree.tag_configure(data[14],background="#f0b9d4",foreground="Black")
+    else:
+        papertree.tag_configure(data[14],background="#c3b9f0",foreground="Black")
+conn.commit()
+conn.close()
 
 
 
