@@ -22,6 +22,14 @@ from builtins import str
 import requests
 import bibtexparser
 import re
+from datetime import date
+
+# Define a function to convert a date object to a string
+def adapt_date(val):
+    return val.strftime('%d-%m-%Y')
+
+# Register the adapter
+sqlite3.register_adapter(date, adapt_date)
 
 
 #main Window creation
@@ -774,7 +782,8 @@ def paperdatabase():
                 Abstract text,
                 Tag text,
                 Detail text,
-                BibTex text
+                BibTex text,
+                Date text
                 )""")
         conn.commit()
         conn.close()
@@ -792,15 +801,15 @@ def load():
     c.execute("SELECT *,oid FROM Articles")
     datas=c.fetchall()
     for data in datas:
-        papertree.insert(parent='',index='end',text=data[14],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[14])
-        if int(data[14])%2==0:
-            papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
-        elif int(data[14])%3==0:
-            papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
-        elif int(data[14])%3==0 and int(data[14])%2==0:
-            papertree.tag_configure(data[14],background="#f0b9d4",foreground="Black")
+        papertree.insert(parent='',index='end',text=data[15],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[15])
+        if int(data[15])%2==0:
+            papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+        elif int(data[15])%3==0:
+            papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+        elif int(data[15])%3==0 and int(data[15])%2==0:
+            papertree.tag_configure(data[15],background="#f0b9d4",foreground="Black")
         else:
-            papertree.tag_configure(data[14],background="#c3b9f0",foreground="Black")
+            papertree.tag_configure(data[15],background="#c3b9f0",foreground="Black")
     conn.commit()
     conn.close()
 
@@ -811,17 +820,39 @@ def paperdatabaseentry():
     for items in item["message"]["author"]:
         authornames = authornames + item["message"]["author"][i]["given"] + " " + item["message"]["author"][i]["family"] + ", "
         i=i+1
-    #abstract=item['message']['abstract'][41:-9]
     conn=sqlite3.connect("Article DataBase.db")
     c=conn.cursor()
-    c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib)) 
+    c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex,Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
     conn.commit()
     conn.close()
     load()
 
 
 
-
+def papertreeviewselected(a):
+    papertitlelable.config(text=" ")
+    paperabstractlable.config(text=" ")
+    paperdetailtext.delete(1.0,END)
+    searchdoi.delete(0,END)
+    try:
+        conn=sqlite3.connect("Article DataBase.db")
+        c = conn.cursor()
+        c.execute("SELECT *,oid FROM Articles WHERE oid ="+str(papertree.item(papertree.selection())['text']))
+        record=c.fetchall()
+        data=record[0]
+        papertitlelable.config(text=data[0],wraplength=690,font=my_font1)
+        searchdoi.insert(END,data[6])
+        paperabstractlable.config(text=data[10],wraplength=690,font=my_font2)
+        paperdetailtext.insert(END,data[12])
+        papertagtypes.set(data[11])
+        paperupdatebutton.config(state=NORMAL)
+        paperdeletebutton.config(state=NORMAL)
+        paperviewbutton.config(state=NORMAL)
+        copybutton.config(state=NORMAL)
+        conn.commit()
+        conn.close()
+    except:
+        pass
 
 
 
@@ -834,7 +865,7 @@ searchpaperauthors=StringVar()
 searchjournals=StringVar()
 searchyears=StringVar()
 searchtags=StringVar()
-searchqualifications=StringVar()
+searchdates=StringVar()
 searchdois=StringVar()
 papertype=StringVar()
 namecheck=StringVar()
@@ -918,10 +949,10 @@ def get_bib_from_doi(doi, abbrev_journal=True, add_abstract=False):
         if found:
             abbreviated_journal = item["message"]["short-container-title"]
             if add_abstract and "abstract" in item["message"].keys():
-                abstract = item["message"]["abstract"][41:-9]
-                bi = bibtexparser.loads(bib)
-                bi.entries[0]["abstract"] = abstract
-                bib = bibtexparser.dumps(bi)
+                abstracts = item["message"]["abstract"][41:-9]
+                #bi = bibtexparser.loads(bib)
+                #bi.entries[0]["abstract"] = abstract
+                #bib = bibtexparser.dumps(bi)
             if add_abstract and "article-number" in item["message"].keys():
                 pages = item["message"]["article-number"]
                 bi = bibtexparser.loads(bib)
@@ -950,7 +981,7 @@ def search():
     founds, item = get_json(doi)
     try:
         titles=item["message"]['title'][0]
-        abstract=item["message"]['abstract'][41:-9]
+        abstract=item["message"]['abstract']
         papertitlelable.config(text="")
         paperabstractlable.config(text="")
         papertitlelable.config(text=titles,wraplength=690,font=my_font1)
@@ -982,37 +1013,44 @@ def paperview():
 def citecopy():
     pass
 
-def papernamesearch():
-    pass
+def paperdatasearch(a,b,c):
+    """
+    This function search the database for paper titles with the similar name or word or 
+    letter given in the papername search widget
+    """
+    conn=sqlite3.connect("Article DataBase.db")
+    c=conn.cursor()
+    try:
+        for item in papertree.get_children():
+            papertree.delete(item)
+        c.execute("""SELECT *, oid FROM Articles WHERE 
+                  Title LIKE ? 
+                  AND Authors LIKE ?
+                  AND Journal LIKE ?
+                  AND Year LIKE ?
+                  AND Tag LIKE ?
+                  AND Date LIKE ?
+                  """, ('%'+str(searchpapernames.get())+'%','%'+str(searchpaperauthors.get())+'%','%'+str(searchjournals.get())+'%','%'+str(searchyears.get())+'%','%'+str(searchtags.get())+'%','%'+str(searchdates.get())+'%'))
+        records=c.fetchall()
+        for data in records:
+            papertree.insert(parent='',index='end',text=data[15],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[15])
+            if int(data[15])%2==0:
+                papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+            elif int(data[15])%3==0:
+                papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+            elif int(data[15])%3==0 and int(data[15])%2==0:
+                papertree.tag_configure(data[15],background="#f0b9d4",foreground="Black")
+            else:
+                papertree.tag_configure(data[15],background="#c3b9f0",foreground="Black")
+    except:
+
+        load()
+        pass   
+    conn.commit()
+    conn.close()
 
 
 
-
-def paperauthorsearch():
-    pass
-
-
-
-
-def journalsearch():
-    pass
-
-
-
-
-def yearsearch():
-    pass
-
-
-
-
-def tagsearch():
-    pass
-
-
-
-def qualificationsearch():
-    pass
 
 
 #creation of all the important label frames which will contain 
@@ -1087,21 +1125,21 @@ uploadpaper.grid(row=2,column=3,padx=5,pady=5)
 uploadpaper.insert(0,"Put upload filedialog")
 uploadpaper.config(state=DISABLED)
 
-paperupdatebutton=ttk.Button(labelframe5,width=22,text="Update",command=paperupdate,padding=5)
+paperupdatebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Update",command=paperupdate,padding=5)
 paperupdatebutton.grid(row=6,column=3,padx=5,pady=1)
 
 
 
-paperdeletebutton=ttk.Button(labelframe5,width=22,text="Delete",command=paperdelete,padding=5)
+paperdeletebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Delete",command=paperdelete,padding=5)
 paperdeletebutton.grid(row=3,column=3,padx=5,pady=1)
 
 
 
-paperviewbutton=ttk.Button(labelframe5,width=22,text="View Paper",command=paperview,padding=5)
+paperviewbutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="View Paper",command=paperview,padding=5)
 paperviewbutton.grid(row=4,column=3,padx=5,pady=1)
 
 
-copybutton=ttk.Button(labelframe5,width=22,text="Copy BixTex",command=citecopy,padding=5)
+copybutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="Copy BixTex",command=citecopy,padding=5)
 copybutton.grid(row=5,column=3,padx=5,pady=1)
 
 
@@ -1115,7 +1153,7 @@ searchpapernamelable.grid(row=0,column=0,sticky=NW,padx=5,pady=5)
 searchpapername=ttk.Entry(labelframe6,width=15,textvariable=searchpapernames)
 searchpapername.grid(row=1,column=0,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search name entry widget
-searchpapernames.trace_add("write",papernamesearch)
+searchpapernames.trace_add("write",paperdatasearch)
 
 #author search
 searchpaperauthorlable=ttk.Label(labelframe6,text="Search by Author's First Name")
@@ -1124,7 +1162,7 @@ searchpaperauthorlable.grid(row=0,column=1,sticky=NW,padx=5,pady=5)
 searchpaperauthor=ttk.Entry(labelframe6,width=25,textvariable=searchpaperauthors)
 searchpaperauthor.grid(row=1,column=1,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search authors entry widget
-searchpaperauthors.trace_add("write",paperauthorsearch)
+searchpaperauthors.trace_add("write",paperdatasearch)
 
 
 #journal Search 
@@ -1135,7 +1173,7 @@ searchjournallable.grid(row=0,column=2,sticky=NW,padx=5,pady=5)
 searchjournal=ttk.Entry(labelframe6,width=15,textvariable=searchjournals)
 searchjournal.grid(row=1,column=2,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search catagory entry widget
-searchjournals.trace_add("write",journalsearch)
+searchjournals.trace_add("write",paperdatasearch)
 
 #year search
 
@@ -1145,7 +1183,7 @@ searchyearlable.grid(row=0,column=3,sticky=NW,padx=5,pady=5)
 searchyear=ttk.Entry(labelframe6,width=15,textvariable=searchyears)
 searchyear.grid(row=1,column=3,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search subjects entry widget
-searchyears.trace_add("write",yearsearch)
+searchyears.trace_add("write",paperdatasearch)
 
 #tag Search 
 
@@ -1155,17 +1193,17 @@ searchtaglable.grid(row=0,column=4,sticky=NW,padx=5,pady=5)
 searchtag=ttk.Entry(labelframe6,width=15,textvariable=searchtags)
 searchtag.grid(row=1,column=4,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search catagory entry widget
-searchtags.trace_add("write",tagsearch)
+searchtags.trace_add("write",paperdatasearch)
 
 #qualification Search 
 
 searchqualificationlable=ttk.Label(labelframe6,text="Search by Entry Type")
 searchqualificationlable.grid(row=0,column=5,sticky=NW,padx=5,pady=5)
 
-searchqualification=ttk.Entry(labelframe6,width=15,textvariable=searchqualifications)
+searchqualification=ttk.Entry(labelframe6,width=15,textvariable=searchdates)
 searchqualification.grid(row=1,column=5,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search catagory entry widget
-searchqualifications.trace_add("write",qualificationsearch)
+searchdates.trace_add("write",paperdatasearch)
 
 
 
@@ -1177,7 +1215,7 @@ papertree.pack(side=LEFT)
 #next line moniters the selection in the treeview.
 #if item selected in the treeview, next line binds that event to
 #the created virtual event and called the treeselection function
-tree.bind('<<TreeviewSelect>>')
+papertree.bind('<<TreeviewSelect>>',papertreeviewselected)
 
 papertreescrollbar=ttk.Scrollbar(labelframe6_1,orient=VERTICAL,command=papertree.yview)
 papertreescrollbar.pack(side=RIGHT,fill=Y)
@@ -1214,15 +1252,15 @@ c.execute("SELECT *,oid FROM Articles")
 datas=c.fetchall()
 
 for data in datas:
-    papertree.insert(parent='',index='end',text=data[14],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[14])
-    if int(data[14])%2==0:
-        papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
-    elif int(data[14])%3==0:
-        papertree.tag_configure(data[14],background="#b9f0c7",foreground="Black")
-    elif int(data[14])%3==0 and int(data[14])%2==0:
-        papertree.tag_configure(data[14],background="#f0b9d4",foreground="Black")
+    papertree.insert(parent='',index='end',text=data[15],values=(data[0],data[1],data[2],data[9],data[11]),tags=data[15])
+    if int(data[15])%2==0:
+        papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+    elif int(data[15])%3==0:
+        papertree.tag_configure(data[15],background="#b9f0c7",foreground="Black")
+    elif int(data[15])%3==0 and int(data[15])%2==0:
+        papertree.tag_configure(data[15],background="#f0b9d4",foreground="Black")
     else:
-        papertree.tag_configure(data[14],background="#c3b9f0",foreground="Black")
+        papertree.tag_configure(data[15],background="#c3b9f0",foreground="Black")
 conn.commit()
 conn.close()
 
