@@ -12,8 +12,9 @@ import pycountry
 from tkinter import messagebox
 from tkinter import filedialog
 import os
+import sys
 from tkinter import PhotoImage,Image
-from PIL import ImageTk
+from PIL import Image,ImageTk
 from tkPDFViewer import tkPDFViewer as pdf
 from tkcalendar import Calendar
 import json
@@ -23,6 +24,8 @@ import requests
 import bibtexparser
 import re
 from datetime import date
+import webbrowser
+
 
 # Define a function to convert a date object to a string
 def adapt_date(val):
@@ -32,30 +35,64 @@ def adapt_date(val):
 sqlite3.register_adapter(date, adapt_date)
 
 
+
+
+#https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #main Window creation
 
 root=Tk()
 root.title("My Own Space")
-# Get the screen width and height
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
+root.geometry(f"{screen_width}x{screen_height}")
+root.iconbitmap(resource_path("assets\\logo.ico"))
+# Get the screen width and height
+
 
 # Set the root window dimensions to match the screen size
-root.geometry(f"{screen_width}x{screen_height}")
 
+#root.attributes("-fullscreen",1)
 #multipage window creation, which is made available by the Notebook method in ttk.Notebook
+style = ttk.Style()
+# Configure the 'TNotebook.Tab' style
+style.configure('TNotebook.Tab', font=('Times New Roman', '15'))
 
 nbook=ttk.Notebook(root)
 nbook.pack()
 
 #adding pages to the notebook interface
+f1=ttk.Frame(nbook)
 
-# To do frame
-todo=ttk.Frame(nbook)
-nbook.add(todo,text="To Do Lists",padding=10)
-
+#open image
 
 
+#nbook.insert(0,f1,text="ADDED")
 
 
 
@@ -68,8 +105,6 @@ nbook.add(todo,text="To Do Lists",padding=10)
 
 
 #my task frame
-mytask=ttk.Frame(nbook)
-nbook.add(mytask,text="My Own Tasks",padding=10)
 
 
 
@@ -92,10 +127,17 @@ nbook.add(mytask,text="My Own Tasks",padding=10)
 
 
 #Booklist Frame
+my_booklogo=Image.open(resource_path("assets\\booklist.ico"))
+booklogo=ImageTk.PhotoImage(my_booklogo)
+
 
 booklist=ttk.Frame(nbook)
-nbook.add(booklist,text="Booklist",padding=10)
+nbook.add(booklist,text="Booklist",image=booklogo,padding=10,compound=TOP)
 
+
+#database function calls, database created
+
+import sqlite3
 def bookdatabase():
     """This is the function which is called in the begining of this frame. 
     This will try to create a database at the first run of the application.
@@ -107,7 +149,7 @@ def bookdatabase():
 #Book Database
 #creat the Book database or connect to one
     try:
-        conn=sqlite3.connect("Book List.db")
+        conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
 
 
         #create cursor
@@ -143,9 +185,9 @@ def bookdatabase():
     except:
         pass
 
-#database function calls, database created
-
 bookdatabase()
+
+
 
 #tkinter variable definition
 
@@ -178,7 +220,7 @@ def delete():
     response=messagebox.askyesno("Delete From DataBase",message="Do you want to delete this item?")
     if response == True:
         try:
-            conn = sqlite3.connect("Book List.db")
+            conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
             c=conn.cursor()
             c.execute("DELETE FROM BookList WHERE oid="+str(serial_number.get()))
             conn.commit()
@@ -214,7 +256,7 @@ def reload():
     """
     for item in tree.get_children():
         tree.delete(item)
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     c.execute("SELECT *, oid FROM BookList")
     records=c.fetchall()
@@ -234,7 +276,7 @@ def namesearch(a,b,c):
     This function search the database for book name with the similar name or word or 
     letter given in the book name search widget
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         for item in tree.get_children():
@@ -264,7 +306,7 @@ def catagorysearch(a,b,c):
     This function search the database for catagory with the similar name or word or 
     letter given in the catagory search widget
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         for item in tree.get_children():
@@ -295,7 +337,7 @@ def authorsearch(a,b,c):
     This function search the database for authors name with the similar name or word or 
     letter given in the authors search widget
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         for item in tree.get_children():
@@ -326,7 +368,7 @@ def booksubjectsearch(a,b,c):
     This function search the database for the subjects with the similar name or word or 
     letter given in the subject search widget
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         for item in tree.get_children():
@@ -391,7 +433,7 @@ def entry():
     This is called upon entry button activation via another function 
     entry_reload. Also delete all the entries in the entry widgets after wards
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     c.execute("""INSERT INTO BookList VALUES(
               :Book_Name,
@@ -448,7 +490,7 @@ def updatedata(a,b,c):
     This is called upon update button activation via another function 
     update_reload. Also delete all the entries in the entry widgets after wards
     """
-    conn=sqlite3.connect("Book List.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         c.execute("SELECT *, oid FROM BookList WHERE oid="+str(serial_number.get()))
@@ -468,7 +510,7 @@ def updatedata(a,b,c):
 
 def update():
     try:
-        conn=sqlite3.connect("Book List.db")
+        conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
         c=conn.cursor()
         c.execute("""UPDATE BookList SET
                 Borrowed = :Borrowed,
@@ -716,7 +758,7 @@ for col in tree["columns"]:
     tree.heading(col,text=col,anchor=W)
 
 #connects to the databse to show data from the database
-conn=sqlite3.connect("Book List.db")
+conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
 c=conn.cursor()
 c.execute("SELECT *, oid FROM BookList")
 records=c.fetchall()
@@ -756,16 +798,23 @@ tree.insert(parent='0',index='end',iid=2,text='',values=("Name3","Debdip4"))
 '''
 
 #adds new page paper to the window
+
+my_paperlogo=Image.open(resource_path("assets\\paper.ico"))
+paperlogo=ImageTk.PhotoImage(my_paperlogo)
+
+
+
+
 paper=ttk.Frame(nbook)
-nbook.add(paper,text="Paper",padding=10)
+nbook.add(paper,text="Paper",image=paperlogo,padding=10,compound=TOP)
 
 
-
+#root.attributes("-alpha", 0.9)
 
 #paper database
 def paperdatabase():
     try:
-        conn = sqlite3.connect("Article DataBase.db")
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
         c = conn.cursor()
 
         c.execute("""CREATE TABLE Articles(
@@ -793,10 +842,93 @@ def paperdatabase():
 
 paperdatabase()
 
+
+def papertagbatabase():
+    try:
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c = conn.cursor()
+
+        c.execute("""CREATE TABLE Tags(
+                 text
+                )""")
+        conn.commit()
+        conn.close()
+    except:
+        pass
+
+
+papertagbatabase()
+
+def papertagbatabase():
+    try:
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c = conn.cursor()
+
+        c.execute("""CREATE TABLE Tags(
+                 text
+                )""")
+        conn.commit()
+        conn.close()
+    except:
+        pass
+
+def papertagcreate():
+    record=papertagtypes.get()
+    
+    if record:
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c = conn.cursor()
+        c.execute("SELECT text FROM Tags")
+        data=c.fetchall()
+        types=[]
+        i=0
+        for item in data:
+            types.append(data[i][0])
+            i=i+1
+        if record in types:
+            pass
+        else:
+            c.execute("INSERT INTO Tags (text) VALUES(?)",(record,))
+        conn.commit()
+        conn.close()
+
+        conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c=conn.cursor()
+        c.execute("SELECT text FROM Tags")
+        datas=c.fetchall()
+        typess=[]
+        f=0
+        for item in datas:
+            typess.append(datas[f][0])
+            f=f+1
+        papertagtypes.config(values=typess)
+        conn.commit()
+        conn.close()
+    else:
+        conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c=conn.cursor()
+        c.execute("SELECT text FROM Tags")
+        datas=c.fetchall()
+        typess=[]
+        i=0
+        for item in datas:
+            typess.append(datas[i][0])
+            i=i+1
+        papertagtypes.config(values=typess)
+        conn.commit()
+        conn.close()
+
+
+
+
+
+
+
+
 def load():
     for item in papertree.get_children():
         papertree.delete(item)
-    conn=sqlite3.connect("Article DataBase.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     c.execute("SELECT *,oid FROM Articles")
     datas=c.fetchall()
@@ -815,16 +947,19 @@ def load():
 
 
 def paperdatabaseentry():
+    papertagcreate()
     authornames=""
     i=0
     for items in item["message"]["author"]:
         authornames = authornames + item["message"]["author"][i]["given"] + " " + item["message"]["author"][i]["family"] + ", "
         i=i+1
-    conn=sqlite3.connect("Article DataBase.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
-    c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex,Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
+    c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex, Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
     conn.commit()
     conn.close()
+    paperdetailtext.delete(1.0,END)
+    papertagtypes.set("")
     load()
 
 
@@ -835,7 +970,7 @@ def papertreeviewselected(a):
     paperdetailtext.delete(1.0,END)
     searchdoi.delete(0,END)
     try:
-        conn=sqlite3.connect("Article DataBase.db")
+        conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
         c = conn.cursor()
         c.execute("SELECT *,oid FROM Articles WHERE oid ="+str(papertree.item(papertree.selection())['text']))
         record=c.fetchall()
@@ -848,13 +983,55 @@ def papertreeviewselected(a):
         paperupdatebutton.config(state=NORMAL)
         paperdeletebutton.config(state=NORMAL)
         paperviewbutton.config(state=NORMAL)
-        copybutton.config(state=NORMAL)
         conn.commit()
         conn.close()
     except:
         pass
 
 
+def paperupdate():
+    papertagcreate()
+
+    try:
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c=conn.cursor()
+        c.execute("UPDATE Articles SET Tag = ?, Detail = ? WHERE oid = ? ",(papertype.get(),paperdetailtext.get(1.0,END),papertree.item(papertree.selection())['text']))
+        conn.commit()
+        conn.close()
+        paperdetailtext.delete(1.0,END)
+        papertagtypes.set("")
+        load()
+        paperupdatebutton.config(state=DISABLED)
+        paperdeletebutton.config(state=DISABLED)
+        paperviewbutton.config(state=DISABLED)
+        papertagtypes.set("Choose Tag")
+    except:
+        load()
+        paperupdatebutton.config(state=DISABLED)
+        paperdeletebutton.config(state=DISABLED)
+        paperviewbutton.config(state=DISABLED)
+        papertagtypes.set("Choose Tag")
+
+def paperdelete():
+    try:
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c=conn.cursor()
+        c.execute("DELETE FROM Articles WHERE oid = ? ",(papertree.item(papertree.selection())['text'],))
+        conn.commit()
+        conn.close()
+        paperdetailtext.delete(1.0,END)
+        papertagtypes.set("")
+        load()
+        paperupdatebutton.config(state=DISABLED)
+        paperdeletebutton.config(state=DISABLED)
+        paperviewbutton.config(state=DISABLED)
+        papertagtypes.set("Choose Tag")
+    except:
+        load()
+        paperupdatebutton.config(state=DISABLED)
+        paperdeletebutton.config(state=DISABLED)
+        paperviewbutton.config(state=DISABLED)
+        papertagtypes.set("Choose Tag")
 
 
 
@@ -974,51 +1151,78 @@ def get_bib_from_doi(doi, abbrev_journal=True, add_abstract=False):
 
 def search():
     doi=searchdois.get()
-    global bib
-    found, bib = get_bib_from_doi(doi, abbrev_journal=True, add_abstract=True)
-    global abstract
-    global item
-    founds, item = get_json(doi)
-    try:
-        titles=item["message"]['title'][0]
-        abstract=item["message"]['abstract']
-        papertitlelable.config(text="")
-        paperabstractlable.config(text="")
-        papertitlelable.config(text=titles,wraplength=690,font=my_font1)
-        paperabstractlable.config(text=abstract,wraplength=690,font=my_font2)
-        paperdatabaseentry()
-    except:
-        abstract=''
-        titles=item["message"]['title'][0]
-        papertitlelable.config(text="")
-        paperabstractlable.config(text="")
-        papertitlelable.config(text=titles,wraplength=690,font=my_font1)
-        paperdatabaseentry()
-    #papertitlelable.config(text="")
-    #paperabstractlable.config(text="")
-
-
-
-def paperupdate():
-    pass
-
-def paperdelete():
-    pass
+    if searchdoi.get():
+        global bib
+        found, bib = get_bib_from_doi(doi, abbrev_journal=True, add_abstract=True)
+        global abstract
+        global item
+        founds, item = get_json(doi)
+        try:
+            titles=item["message"]['title'][0]
+            abstract=item["message"]['abstract']
+            papertitlelable.config(text="")
+            paperabstractlable.config(text="")
+            papertitlelable.config(text=titles,wraplength=690,font=my_font1)
+            paperabstractlable.config(text=abstract,wraplength=690,font=my_font2)
+            paperdatabaseentry()
+            papertagtypes.set("Choose Tag")
+        except:
+            abstract=''
+            titles=item["message"]['title'][0]
+            papertitlelable.config(text="")
+            paperabstractlable.config(text="")
+            papertitlelable.config(text=titles,wraplength=690,font=my_font1)
+            paperdatabaseentry()
+            papertagtypes.set("Choose Tag")
+    else:
+        pass
 
 
 def paperview():
-    pass
+    conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+    c=conn.cursor()
+    try:
+        c.execute("SELECT URL FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
+        record=c.fetchall()
+        url=record[0][0]
+        webbrowser.open_new_tab(url)
+    except:
+        c.execute("SELECT First_Link FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
+        record=c.fetchall()
+        url=record[0][0]
+        webbrowser.open_new_tab(url)
+    conn.commit()
+    conn.close()
+    
 
 
 def citecopy():
-    pass
+    try:
+        filename = filedialog.asksaveasfilename()
+        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+        c = conn.cursor()
+        c.execute("SELECT BibTex FROM Articles")
+        bibrecord=c.fetchall()
+        f=open(filename, W, encoding="utf-8")
+        i=0
+        for item in bibrecord:
+            f.write(bibrecord[i][0])
+            i=i+1
+        conn.commit()
+        conn.close()
+    except:
+        pass
+    
+
+
+
 
 def paperdatasearch(a,b,c):
     """
     This function search the database for paper titles with the similar name or word or 
     letter given in the papername search widget
     """
-    conn=sqlite3.connect("Article DataBase.db")
+    conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
     c=conn.cursor()
     try:
         for item in papertree.get_children():
@@ -1062,7 +1266,7 @@ labelframe4.grid(row=0,column=0,padx=5,pady=0,sticky=NW)
 labelframe4_1=ttk.LabelFrame(labelframe4,padding=5)
 labelframe4_1.grid(row=7,column=1,padx=5,pady=5,columnspan=2)
 
-labelframe5=ttk.LabelFrame(paper,text="Update Details and Citation Details",padding=2)
+labelframe5=ttk.LabelFrame(paper,text="Survey Details and Citation Details",padding=2)
 labelframe5.grid(row=1,column=0,padx=5,pady=0,sticky=SW)
 
 labelframe5_1=ttk.LabelFrame(labelframe5,padding=5)
@@ -1078,10 +1282,8 @@ labelframe6_1.grid(row=2,column=0,columnspan=10)
 
 #Entry Via DOI Entry
 
-searchdoi=ttk.Entry(labelframe4,width=84,textvariable=searchdois)
+searchdoi=ttk.Entry(labelframe4,width=88,textvariable=searchdois)
 searchdoi.grid(row=0,column=0,padx=5,pady=5,sticky=SW,columnspan=5)
-
-
 searchbutton=ttk.Button(labelframe4,width=22,text="Entry",command=search,padding=5)
 searchbutton.grid(row=0,column=5,padx=5,pady=5,sticky=NW)
 
@@ -1109,38 +1311,47 @@ paperabstractlable.grid(row=2,column=0,columnspan=6,sticky=NW,pady=2)
 
 
 #Enter Detailed survey of the paper or any details you waht to input
-paperdetailtextlabel=ttk.Label(labelframe5,text="Enter Detailed Survay in words")
+paperdetailtextlabel=ttk.Label(labelframe5,text="Enter Detailed Survey in words")
 paperdetailtextlabel.grid(row=0,column=0,columnspan=3,sticky=NW)
-paperdetailtext=Text(labelframe5,height=13,width=66)
+papertaglabel=ttk.Label(labelframe5,text="Choose Tag or Type New Tag")
+papertaglabel.grid(row=1,column=3,sticky=NW)
+paperdetailtext=Text(labelframe5,height=13,width=67)
 paperdetailtext.grid(row=1,column=0,columnspan=3,rowspan=6,pady=10)
 
-papertagstype=["PhD","Masters","Internship-OIST","Chanakya Fellowship"]
+conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+c = conn.cursor()
+c.execute("SELECT text FROM Tags")
+data=c.fetchall()
+papertagstype=[]
+d=0
+for item in data:
+    papertagstype.append(data[d][0])
+    d=d+1
+
+conn.commit()
+conn.close()
 
 papertagtypes=ttk.Combobox(labelframe5,textvariable=papertype,values=papertagstype)
-papertagtypes.grid(row=1,column=3,padx=5,pady=1)
+papertagtypes.grid(row=2,column=3,padx=5,pady=1)
+papertagtypes.set("Choose Tag")
 
-
-uploadpaper=ttk.Entry(labelframe5,width=24)
-uploadpaper.grid(row=2,column=3,padx=5,pady=5)
-uploadpaper.insert(0,"Put upload filedialog")
-uploadpaper.config(state=DISABLED)
 
 paperupdatebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Update",command=paperupdate,padding=5)
-paperupdatebutton.grid(row=6,column=3,padx=5,pady=1)
+paperupdatebutton.grid(row=5,column=3,padx=5,pady=1,sticky=E)
 
 
 
 paperdeletebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Delete",command=paperdelete,padding=5)
-paperdeletebutton.grid(row=3,column=3,padx=5,pady=1)
+paperdeletebutton.grid(row=3,column=3,padx=5,pady=1,sticky=E)
 
 
 
 paperviewbutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="View Paper",command=paperview,padding=5)
-paperviewbutton.grid(row=4,column=3,padx=5,pady=1)
+paperviewbutton.grid(row=4,column=3,padx=5,pady=1,sticky=E)
 
 
-copybutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="Copy BixTex",command=citecopy,padding=5)
-copybutton.grid(row=5,column=3,padx=5,pady=1)
+copybutton=ttk.Button(labelframe5,width=22,text="Create BixTex File",command=citecopy,padding=5)
+copybutton.grid(row=6,column=3,padx=5,pady=1,sticky=E)
 
 
 
@@ -1162,8 +1373,6 @@ searchpaperauthorlable.grid(row=0,column=1,sticky=NW,padx=5,pady=5)
 searchpaperauthor=ttk.Entry(labelframe6,width=25,textvariable=searchpaperauthors)
 searchpaperauthor.grid(row=1,column=1,padx=5,pady=5,sticky=NW)
 #traces any chenges or entry to search authors entry widget
-searchpaperauthors.trace_add("write",paperdatasearch)
-
 
 #journal Search 
 
@@ -1197,7 +1406,7 @@ searchtags.trace_add("write",paperdatasearch)
 
 #qualification Search 
 
-searchqualificationlable=ttk.Label(labelframe6,text="Search by Entry Type")
+searchqualificationlable=ttk.Label(labelframe6,text="Search by Entry Date")
 searchqualificationlable.grid(row=0,column=5,sticky=NW,padx=5,pady=5)
 
 searchqualification=ttk.Entry(labelframe6,width=15,textvariable=searchdates)
@@ -1244,7 +1453,7 @@ papertree.column("Tags",width=120)
 papertree.heading("Tags",text="Tags",anchor=W)
 
 
-conn=sqlite3.connect("Article DataBase.db")
+conn=sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
 c=conn.cursor()
 c.execute("SELECT *,oid FROM Articles")
 
@@ -1268,13 +1477,105 @@ conn.close()
 
 #add new window expenditure analysis to the page
 
+my_expencelogo=Image.open(resource_path("assets\\expenditure.ico"))
+expencelogo=ImageTk.PhotoImage(my_expencelogo)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+my_tasklogo=Image.open(resource_path("assets\\taask.ico"))
+tasklogo=ImageTk.PhotoImage(my_tasklogo)
+
+
+mytask=ttk.Frame(nbook)
+nbook.add(mytask,text="My Own Tasks",image=tasklogo,padding=10,compound=TOP)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 expence=ttk.Frame(nbook)
-nbook.add(expence,text="Expenditure Analysis",padding=10)
+nbook.add(expence,text="Expenditure Analysis",padding=10,image=expencelogo,compound=TOP)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+my_todologo=Image.open(resource_path("assets\\todo.ico"))
+todologo=ImageTk.PhotoImage(my_todologo)
+
+# To do frame 
+todo=ttk.Frame(nbook)
+nbook.add(todo,text="To Do Lists",padding=10,image=todologo,compound=TOP)
+
+
+
+
+
+
+
+
+#nbook.forget(mytask)
 
 #the loop is the main loop which help the app to see and monitor any changes in the app
 
