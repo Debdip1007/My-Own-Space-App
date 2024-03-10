@@ -86,7 +86,7 @@ root.iconbitmap(resource_path("assets\\logo.ico"))
 #root.attributes("-fullscreen",1)
 #multipage window creation, which is made available by the Notebook method in ttk.Notebook
 style = ttk.Style()
-style.theme_use('winnative')
+style.theme_use('vista')
 # Configure the 'TNotebook.Tab' style
 style.configure('TNotebook.Tab', font=('Times New Roman', '15'))
 
