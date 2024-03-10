@@ -636,7 +636,7 @@ uploadlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=4)
 uploaddata=ttk.Entry(labelframe1_1,width=25)
 uploaddata.grid(row=1,column=1,padx=10,pady=4,sticky=NW)
 uploaddata.insert(0,"Put upload filedialog")
-uploaddata.config(state=NORMAL)
+uploaddata.config(state=DISABLED)
 
 entrybutton=Button(labelframe1_1,text="Entry",padx=10,pady=6,command=entry_reload,width=10,background="#95f587",font=30,borderwidth=5,activebackground="#e592e8")
 entrybutton.grid(row=2,column=1,padx=10,pady=4)
