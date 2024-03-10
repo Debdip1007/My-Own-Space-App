@@ -649,7 +649,6 @@ serial_no.grid(row=1,column=0,padx=10,pady=5,sticky=NW)
 #next line moniters any type of entry to the serial no widget
 serial_number.trace_add("write", updatedata)
 
-
 borrowedlabel=ttk.Label(labelframe2,text="Borrowed?")
 borrowedlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=5)
 
@@ -755,7 +754,7 @@ tree.column('#0',width=40)
 tree.heading('#0',text="Database ID",anchor=W)
 
 for col in tree["columns"]:
-    tree.column(col,anchor=NW,width=82)
+    tree.column(col,anchor=NW,width=88)
     tree.heading(col,text=col,anchor=W)
 
 #connects to the databse to show data from the database
@@ -903,6 +902,7 @@ def papertagcreate():
             typess.append(datas[f][0])
             f=f+1
         papertagtypes.config(values=typess)
+        papertagtypess.config(values=typess)
         conn.commit()
         conn.close()
     else:
@@ -916,6 +916,7 @@ def papertagcreate():
             typess.append(datas[i][0])
             i=i+1
         papertagtypes.config(values=typess)
+        papertagtypess.config(values=typess)
         conn.commit()
         conn.close()
 
@@ -1047,7 +1048,7 @@ searchdates=StringVar()
 searchdois=StringVar()
 papertype=StringVar()
 namecheck=StringVar()
-
+papertypes=StringVar()
 
 
 
@@ -1199,10 +1200,20 @@ def paperview():
 
 def citecopy():
     try:
-        filename = filedialog.asksaveasfilename()
-        conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
-        c = conn.cursor()
-        c.execute("SELECT BibTex FROM Articles")
+        values = papertypes.get()
+        if values =="Choose Tag For BibTex":
+            pass       
+        if values =="all":
+            filename=filedialog.asksaveasfilename()
+            conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+            c = conn.cursor()
+            c.execute("SELECT BibTex FROM Articles")
+        else:
+            filename = filedialog.asksaveasfilename()
+            conn = sqlite3.connect(resource_path("the_database\\My_App_DataBase.db"))
+            c = conn.cursor()
+            c.execute("""SELECT BibTex FROM Articles WHERE 
+                      Tag LIKE ?""", (str(values)+ '%',))
         bibrecord=c.fetchall()
         f=open(filename, W, encoding="utf-8")
         i=0
@@ -1315,7 +1326,7 @@ paperabstractlable.grid(row=2,column=0,columnspan=6,sticky=NW,pady=2)
 paperdetailtextlabel=ttk.Label(labelframe5,text="Enter Detailed Survey in words")
 paperdetailtextlabel.grid(row=0,column=0,columnspan=3,sticky=NW)
 papertaglabel=ttk.Label(labelframe5,text="Choose Tag or Type New Tag")
-papertaglabel.grid(row=1,column=3,sticky=NW)
+papertaglabel.grid(row=0,column=3,sticky=NW)
 paperdetailtext=Text(labelframe5,height=13,width=67)
 paperdetailtext.grid(row=1,column=0,columnspan=3,rowspan=6,pady=10)
 
@@ -1333,23 +1344,27 @@ conn.commit()
 conn.close()
 
 papertagtypes=ttk.Combobox(labelframe5,textvariable=papertype,values=papertagstype)
-papertagtypes.grid(row=2,column=3,padx=5,pady=1)
+papertagtypes.grid(row=1,column=3,padx=5,pady=1)
 papertagtypes.set("Choose Tag")
 
 
-paperupdatebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Update",command=paperupdate,padding=5)
-paperupdatebutton.grid(row=5,column=3,padx=5,pady=1,sticky=E)
+paperupdatebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Update Paper Data",command=paperupdate,padding=5)
+paperupdatebutton.grid(row=2,column=3,padx=5,pady=1,sticky=E)
 
 
 
-paperdeletebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Delete",command=paperdelete,padding=5)
+paperdeletebutton=ttk.Button(labelframe5,width=22,state=DISABLED,text="Delete Article",command=paperdelete,padding=5)
 paperdeletebutton.grid(row=3,column=3,padx=5,pady=1,sticky=E)
 
 
 
-paperviewbutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="View Paper",command=paperview,padding=5)
+paperviewbutton=ttk.Button(labelframe5,state=DISABLED,width=22,text="View Article",command=paperview,padding=5)
 paperviewbutton.grid(row=4,column=3,padx=5,pady=1,sticky=E)
 
+
+papertagtypess=ttk.Combobox(labelframe5,textvariable=papertypes,values=papertagstype)
+papertagtypess.grid(row=5,column=3,padx=5,pady=1)
+papertagtypess.set("Choose Tag For BibTex")
 
 copybutton=ttk.Button(labelframe5,width=22,text="Create BixTex File",command=citecopy,padding=5)
 copybutton.grid(row=6,column=3,padx=5,pady=1,sticky=E)
