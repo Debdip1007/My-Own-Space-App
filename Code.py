@@ -536,19 +536,19 @@ def update():
 #creation of all the important label frames which will contain 
 #all the widgets
 
-labelframe1=ttk.LabelFrame(booklist,text="Book DataBase Entry",padding=2)
-labelframe1.grid(row=0,column=0,padx=5,pady=2,sticky=NW)
+labelframe1=ttk.LabelFrame(booklist,text="Book DataBase Entry")
+labelframe1.grid(row=0,column=0,padx=5,pady=0,sticky=NW)
 
-labelframe1_1=ttk.LabelFrame(labelframe1,padding=2)
-labelframe1_1.grid(row=7,column=1,padx=5,pady=2,columnspan=2)
+labelframe1_1=ttk.LabelFrame(labelframe1)
+labelframe1_1.grid(row=7,column=1,padx=5,pady=0,columnspan=2)
 
-labelframe2=ttk.LabelFrame(booklist,text="Update DataBase Entry",padding=2)
-labelframe2.grid(row=1,column=0,padx=5,pady=2,sticky=NW)
+labelframe2=ttk.LabelFrame(booklist,text="Update DataBase Entry")
+labelframe2.grid(row=1,column=0,padx=5,pady=0,sticky=NW)
 
-labelframe2_1=ttk.LabelFrame(labelframe2,padding=2)
-labelframe2_1.grid(row=3,column=1,padx=5,pady=2,columnspan=2)
+labelframe2_1=ttk.LabelFrame(labelframe2)
+labelframe2_1.grid(row=3,column=1,padx=5,pady=0,columnspan=2)
 
-labelframe3=ttk.LabelFrame(booklist,text="Book List",padding=5)
+labelframe3=ttk.LabelFrame(booklist,text="Book List")
 labelframe3.grid(row=0,column=1,rowspan=2,padx=5,pady=5,sticky=NW)
 
 labelframe3_1=ttk.LabelFrame(labelframe3)
@@ -558,88 +558,88 @@ labelframe3_1.grid(row=2,column=0,columnspan=10)
 
 
 booklabel=ttk.Label(labelframe1,text="Book Name")
-booklabel.grid(row=0,column=0,sticky=NW,padx=10,pady=5)
+booklabel.grid(row=0,column=0,sticky=NW,padx=10,pady=4)
 
 bookname=ttk.Entry(labelframe1,width=25)
-bookname.grid(row=1,column=0,padx=10,pady=5,sticky=NW)
+bookname.grid(row=1,column=0,padx=10,pady=4,sticky=NW)
 
 
 authorlabel=ttk.Label(labelframe1,text="Authors")
-authorlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=5)
+authorlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=4)
 
 authors=ttk.Entry(labelframe1,width=25)
-authors.grid(row=1,column=1,padx=10,pady=5,sticky=NW)
+authors.grid(row=1,column=1,padx=10,pady=4,sticky=NW)
 
 publicationlabel=ttk.Label(labelframe1,text="Publisher")
-publicationlabel.grid(row=0,column=2,sticky=NW,padx=10,pady=5)
+publicationlabel.grid(row=0,column=2,sticky=NW,padx=10,pady=4)
 
 publisher=ttk.Entry(labelframe1,width=25)
-publisher.grid(row=1,column=2,padx=10,pady=5,sticky=NW)
+publisher.grid(row=1,column=2,padx=10,pady=4,sticky=NW)
 
 typelabel=ttk.Label(labelframe1,text="Book Catagory")
-typelabel.grid(row=2,column=0,sticky=NW,padx=10,pady=5)
+typelabel.grid(row=2,column=0,sticky=NW,padx=10,pady=4)
 # sets default as academic
 typedata=ttk.Combobox(labelframe1,textvariable=catagory,values=catagories,width=20)
 typedata.set("Academic")
-typedata.grid(row=3,column=0,padx=10,pady=5,sticky=NW)
+typedata.grid(row=3,column=0,padx=10,pady=4,sticky=NW)
 
 book_print_type_label=ttk.Label(labelframe1,text="Brought/ PDF Print")
-book_print_type_label.grid(row=2,column=1,sticky=NW,padx=10,pady=5)
+book_print_type_label.grid(row=2,column=1,sticky=NW,padx=10,pady=4)
 #sets default to Brought by Me
 book_print_type=ttk.Combobox(labelframe1,width=20,textvariable=yes_or_no,values=options,state='readonly')
-book_print_type.grid(row=3,column=1,padx=10,pady=5,sticky=NW)
+book_print_type.grid(row=3,column=1,padx=10,pady=4,sticky=NW)
 book_print_type.set("Brought by Me")
 
 ISBNlabel=ttk.Label(labelframe1,text="ISBN")
-ISBNlabel.grid(row=2,column=2,sticky=NW,padx=10,pady=5)
+ISBNlabel.grid(row=2,column=2,sticky=NW,padx=10,pady=4)
 
 ISBNnumber=ttk.Entry(labelframe1,width=25)
-ISBNnumber.grid(row=3,column=2,padx=10,pady=5,sticky=NW)
+ISBNnumber.grid(row=3,column=2,padx=10,pady=4,sticky=NW)
 
 
 topiclabel=ttk.Label(labelframe1,text="Book Subject")
-topiclabel.grid(row=4,column=0,sticky=NW,padx=10,pady=5)
+topiclabel.grid(row=4,column=0,sticky=NW,padx=10,pady=4)
 
 topic=ttk.Entry(labelframe1,width=25)
-topic.grid(row=5,column=0,padx=10,pady=5,sticky=NW)
+topic.grid(row=5,column=0,padx=10,pady=4,sticky=NW)
 
 placelabel=ttk.Label(labelframe1,text="Place")
-placelabel.grid(row=4,column=1,sticky=NW,padx=10,pady=5)
+placelabel.grid(row=4,column=1,sticky=NW,padx=10,pady=4)
 #set Defult as Home
 place=ttk.Combobox(labelframe1,width=20,textvariable=placedata,values=['Home','Others','Computer/Hard Disk'],state='readonly')
 place.set('Home')
-place.grid(row=5,column=1,padx=10,pady=5,sticky=NW)
+place.grid(row=5,column=1,padx=10,pady=4,sticky=NW)
 
 
 pricelabel=ttk.Label(labelframe1,text="Price")
-pricelabel.grid(row=4,column=2,sticky=NW,padx=10,pady=5)
+pricelabel.grid(row=4,column=2,sticky=NW,padx=10,pady=4)
 
 price=ttk.Entry(labelframe1,width=25)
-price.grid(row=5,column=2,padx=10,pady=5,sticky=NW)
+price.grid(row=5,column=2,padx=10,pady=4,sticky=NW)
 
 datelabel=ttk.Label(labelframe1,text="Date")
-datelabel.grid(row=6,column=0,sticky=NW,padx=10,pady=5)
+datelabel.grid(row=6,column=0,sticky=NW,padx=10)
 
 #creation of calender to select date
 calender=Calendar(labelframe1,selectmode='day')
 calender.grid(row=7,column=0)
 
 doilabel=ttk.Label(labelframe1_1,text="DOI Number")
-doilabel.grid(row=0,column=0,sticky=NW,padx=10,pady=5)
+doilabel.grid(row=0,column=0,sticky=NW,padx=10,pady=4)
 
 doi=ttk.Entry(labelframe1_1,width=25)
-doi.grid(row=1,column=0,padx=10,pady=5,sticky=NW)
+doi.grid(row=1,column=0,padx=10,pady=4,sticky=NW)
 
 uploadlabel=ttk.Label(labelframe1_1,text="Upload PDF")
-uploadlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=5)
+uploadlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=4)
 
 uploaddata=ttk.Entry(labelframe1_1,width=25)
-uploaddata.grid(row=1,column=1,padx=10,pady=5,sticky=NW)
+uploaddata.grid(row=1,column=1,padx=10,pady=4,sticky=NW)
 uploaddata.insert(0,"Put upload filedialog")
 uploaddata.config(state=DISABLED)
 
 entrybutton=Button(labelframe1_1,text="Entry",padx=10,pady=6,command=entry_reload,width=10,background="#95f587",font=30,borderwidth=5,activebackground="#e592e8")
-entrybutton.grid(row=2,column=1,padx=10,pady=5)
+entrybutton.grid(row=2,column=1,padx=10,pady=4)
 
 serial_no_label=ttk.Label(labelframe2,text="DataBase Id / Serial No.")
 serial_no_label.grid(row=0,column=0,sticky=NW,padx=10,pady=5)
@@ -667,23 +667,23 @@ isborrowed.grid(row=1,column=2,padx=10,pady=5,sticky=NW)
 
 
 borrowdatelabel=ttk.Label(labelframe2,text="Borrow/Return Date")
-borrowdatelabel.grid(row=2,column=0,sticky=NW,padx=10,pady=5)
+borrowdatelabel.grid(row=2,column=0,sticky=NW,padx=10)
 
 
 borrowcalender=Calendar(labelframe2,selectmode='day')
 borrowcalender.grid(row=3,column=0)
 
 updatebutton=Button(labelframe2_1,text="Update",padx=10,pady=10,command=update_reload,width=10,background="Blue",fg='white',font=30,borderwidth=5,state=DISABLED)
-updatebutton.grid(row=1,column=0,padx=20,pady=20)
+updatebutton.grid(row=1,column=0,padx=10,pady=10)
 
 openbutton=Button(labelframe2_1,text="Open",padx=10,pady=10,command=update,width=10,background="Blue",fg='white',font=30,borderwidth=5)
-openbutton.grid(row=0,column=0,padx=20,pady=20)
+openbutton.grid(row=0,column=0,padx=10,pady=10)
 
 deletebutton=Button(labelframe2_1,text="Delete",state=DISABLED,padx=10,pady=10,command=delete,width=10,background="Blue",fg='white',font=30,borderwidth=5)
-deletebutton.grid(row=0,column=1,padx=20,pady=20)
+deletebutton.grid(row=0,column=1,padx=10,pady=10)
 
 deleteallbutton=Button(labelframe2_1,text="Delete All",padx=10,pady=10,command=deleteall,width=10,background="Blue",fg='white',font=30,borderwidth=5)
-deleteallbutton.grid(row=1,column=1,padx=20,pady=20)
+deleteallbutton.grid(row=1,column=1,padx=10,pady=10)
 
 
 
@@ -728,7 +728,7 @@ searchbooksubjects.trace_add("write",booksubjectsearch)
 
 #tree view create
 
-tree=ttk.Treeview(labelframe3_1,height=30,selectmode=EXTENDED)
+tree=ttk.Treeview(labelframe3_1,height=28,selectmode=EXTENDED)
 tree.pack(side=LEFT)
 #next line moniters the selection in the treeview.
 #if item selected in the treeview, next line binds that event to
@@ -1291,8 +1291,8 @@ searchbutton.grid(row=0,column=5,padx=5,pady=5,sticky=NW)
 #check box for Treeview
 
 #font style definition
-my_font1 = font.Font(family='Helvetica', size=16, weight='bold')
-my_font2 = font.Font(family='Times New Roman', size=12)
+my_font1 = font.Font(family='Helvetica', size=14, weight='bold')
+my_font2 = font.Font(family='Times New Roman', size=11)
 #Paper Title show
 
 papertitlelable=ttk.Label(labelframe4)
@@ -1419,7 +1419,7 @@ searchdates.trace_add("write",paperdatasearch)
 
 
 #treeview creation
-papertree=ttk.Treeview(labelframe6_1,height=30,selectmode=EXTENDED)
+papertree=ttk.Treeview(labelframe6_1,height=28,selectmode=EXTENDED)
 papertree.pack(side=LEFT)
 #next line moniters the selection in the treeview.
 #if item selected in the treeview, next line binds that event to
@@ -1481,6 +1481,9 @@ my_expencelogo=Image.open(resource_path("assets\\expenditure.ico"))
 expencelogo=ImageTk.PhotoImage(my_expencelogo)
 
 
+expence=ttk.Frame(nbook)
+nbook.add(expence,text="Expenditure Analysis",padding=10,image=expencelogo,compound=TOP)
+
 
 
 
@@ -1533,9 +1536,6 @@ nbook.add(mytask,text="My Own Tasks",image=tasklogo,padding=10,compound=TOP)
 
 
 
-
-expence=ttk.Frame(nbook)
-nbook.add(expence,text="Expenditure Analysis",padding=10,image=expencelogo,compound=TOP)
 
 
 
