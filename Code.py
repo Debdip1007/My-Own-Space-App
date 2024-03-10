@@ -70,11 +70,6 @@ createuserdatabase()
 
 
 
-
-
-
-
-
 #main Window creation
 
 root=Tk()
@@ -83,7 +78,6 @@ screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 root.geometry(f"{screen_width}x{screen_height}")
 root.iconbitmap(resource_path("assets\\logo.ico"))
-root.config(background="#1bf5df")
 # Get the screen width and height
 
 
@@ -92,8 +86,12 @@ root.config(background="#1bf5df")
 #root.attributes("-fullscreen",1)
 #multipage window creation, which is made available by the Notebook method in ttk.Notebook
 style = ttk.Style()
+style.theme_use('winnative')
 # Configure the 'TNotebook.Tab' style
 style.configure('TNotebook.Tab', font=('Times New Roman', '15'))
+
+
+
 
 nbook=ttk.Notebook(root)
 nbook.pack()
@@ -130,79 +128,11 @@ expence=ttk.Frame(nbook)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 my_tasklogo=Image.open(resource_path("assets\\taask.ico"))
 tasklogo=ImageTk.PhotoImage(my_tasklogo)
 
 
 mytask=ttk.Frame(nbook)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -214,20 +144,16 @@ todo=ttk.Frame(nbook)
 
 
 
-
-
-
-
-
-
-
-
-
 my_logoutlogo=Image.open(resource_path("assets\\logout.ico"))
 logoutlogo=ImageTk.PhotoImage(my_logoutlogo)
 
 logoutframe=ttk.Frame(nbook)
 
+
+
+"""___________________________________________________________________________________________________________________
+----------------------------------This portion code of code is for Notebook. This contail all the --------------------
+----------------------------------widgets of Notebook and functions. -------------------------------------------------"""
 
 def runfunction():
     url=baredatabaseurl
@@ -1588,6 +1514,17 @@ def runfunction():
 
 
 
+
+
+
+
+
+
+
+""" -----------------------------------------------------------------------------------------------------------------------
+-------------------- Program For the Welcome Window, which calls the main NoteBook window in its line----------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------"""
+
 def toplevel():
     
     def rootdestroy():
@@ -1624,9 +1561,7 @@ def toplevel():
             passward = passentry.get()
             username = users[emails.index(myemail)]
             global baredatabaseurl
-            print(username)
             baredatabaseurl = "the_database\\"+ username+".db"
-            print(baredatabaseurl)
             dismiss()
             runfunction()
             nbook.add(booklist,text="Booklist",image=booklogo,padding=10,compound=TOP)
