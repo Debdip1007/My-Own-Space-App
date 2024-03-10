@@ -649,6 +649,7 @@ serial_no.grid(row=1,column=0,padx=10,pady=5,sticky=NW)
 #next line moniters any type of entry to the serial no widget
 serial_number.trace_add("write", updatedata)
 
+
 borrowedlabel=ttk.Label(labelframe2,text="Borrowed?")
 borrowedlabel.grid(row=0,column=1,sticky=NW,padx=10,pady=5)
 
