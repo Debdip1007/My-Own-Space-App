@@ -169,7 +169,7 @@ def runfunction():
     #Book Database
     #creat the Book database or connect to one
         try:
-            conn=sqlite3.connect(resource_path(url))
+            conn=sqlite3.connect(resource_path(baredatabaseurl))
 
 
             #create cursor
@@ -240,7 +240,7 @@ def runfunction():
         response=messagebox.askyesno("Delete From DataBase",message="Do you want to delete this item?")
         if response == True:
             try:
-                conn = sqlite3.connect(resource_path(url))
+                conn = sqlite3.connect(resource_path(baredatabaseurl))
                 c=conn.cursor()
                 c.execute("DELETE FROM BookList WHERE oid="+str(serial_number.get()))
                 conn.commit()
@@ -276,7 +276,7 @@ def runfunction():
         """
         for item in tree.get_children():
             tree.delete(item)
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         c.execute("SELECT *, oid FROM BookList")
         records=c.fetchall()
@@ -296,7 +296,7 @@ def runfunction():
         This function search the database for book name with the similar name or word or 
         letter given in the book name search widget
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             for item in tree.get_children():
@@ -326,7 +326,7 @@ def runfunction():
         This function search the database for catagory with the similar name or word or 
         letter given in the catagory search widget
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             for item in tree.get_children():
@@ -357,7 +357,7 @@ def runfunction():
         This function search the database for authors name with the similar name or word or 
         letter given in the authors search widget
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             for item in tree.get_children():
@@ -388,7 +388,7 @@ def runfunction():
         This function search the database for the subjects with the similar name or word or 
         letter given in the subject search widget
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             for item in tree.get_children():
@@ -453,7 +453,7 @@ def runfunction():
         This is called upon entry button activation via another function 
         entry_reload. Also delete all the entries in the entry widgets after wards
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         c.execute("""INSERT INTO BookList VALUES(
                 :Book_Name,
@@ -510,7 +510,7 @@ def runfunction():
         This is called upon update button activation via another function 
         update_reload. Also delete all the entries in the entry widgets after wards
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             c.execute("SELECT *, oid FROM BookList WHERE oid="+str(serial_number.get()))
@@ -530,7 +530,7 @@ def runfunction():
 
     def update():
         try:
-            conn=sqlite3.connect(resource_path(url))
+            conn=sqlite3.connect(resource_path(baredatabaseurl))
             c=conn.cursor()
             c.execute("""UPDATE BookList SET
                     Borrowed = :Borrowed,
@@ -779,7 +779,7 @@ def runfunction():
 
     #connects to the databse to show data from the database
     
-    conn=sqlite3.connect(resource_path(url))
+    conn=sqlite3.connect(resource_path(baredatabaseurl))
     c=conn.cursor()
     c.execute("SELECT *, oid FROM BookList")
     records=c.fetchall()
@@ -822,7 +822,7 @@ def runfunction():
     #paper database
     def paperdatabase():
         try:
-            conn = sqlite3.connect(resource_path(url))
+            conn = sqlite3.connect(resource_path(baredatabaseurl))
             c = conn.cursor()
 
             c.execute("""CREATE TABLE Articles(
@@ -853,7 +853,7 @@ def runfunction():
 
     def papertagdatabase():
         try:
-            conn = sqlite3.connect(resource_path(url))
+            conn = sqlite3.connect(resource_path(baredatabaseurl))
             c = conn.cursor()
 
             c.execute("""CREATE TABLE Tags(
@@ -872,7 +872,7 @@ def runfunction():
         record=papertagtypes.get()
         
         if record:
-            conn = sqlite3.connect(resource_path(url))
+            conn = sqlite3.connect(resource_path(baredatabaseurl))
             c = conn.cursor()
             c.execute("SELECT text FROM Tags")
             data=c.fetchall()
@@ -888,7 +888,7 @@ def runfunction():
             conn.commit()
             conn.close()
 
-            conn=sqlite3.connect(resource_path(url))
+            conn=sqlite3.connect(resource_path(baredatabaseurl))
             c=conn.cursor()
             c.execute("SELECT text FROM Tags")
             datas=c.fetchall()
@@ -902,7 +902,7 @@ def runfunction():
             conn.commit()
             conn.close()
         else:
-            conn=sqlite3.connect(resource_path(url))
+            conn=sqlite3.connect(resource_path(baredatabaseurl))
             c=conn.cursor()
             c.execute("SELECT text FROM Tags")
             datas=c.fetchall()
@@ -926,7 +926,7 @@ def runfunction():
     def load():
         for item in papertree.get_children():
             papertree.delete(item)
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         c.execute("SELECT *,oid FROM Articles")
         datas=c.fetchall()
@@ -950,7 +950,7 @@ def runfunction():
         for items in josndata["message"]["author"]:
             authornames = authornames + josndata["message"]["author"][i]["given"] + " " + josndata["message"]["author"][i]["family"] + ", "
             i=i+1
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex, Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(josndata['message']['title'][0],authornames,josndata['message']['container-title'][0],josndata['message']['volume'],josndata['message']['issue'],josndata['message'].get('article-number',' '),josndata['message']['DOI'],josndata['message']['URL'],josndata['message']['resource']['primary']['URL'],josndata['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
         conn.commit()
@@ -991,7 +991,7 @@ def runfunction():
         papertagcreate()
 
         try:
-            conn = sqlite3.connect(resource_path(url))
+            conn = sqlite3.connect(resource_path(baredatabaseurl))
             c=conn.cursor()
             c.execute("UPDATE Articles SET Tag = ?, Detail = ? WHERE oid = ? ",(papertype.get(),paperdetailtext.get(1.0,END),papertree.item(papertree.selection())['text']))
             conn.commit()
@@ -1012,7 +1012,7 @@ def runfunction():
 
     def paperdelete():
         try:
-            conn = sqlite3.connect(resource_path(url))
+            conn = sqlite3.connect(resource_path(baredatabaseurl))
             c=conn.cursor()
             c.execute("DELETE FROM Articles WHERE oid = ? ",(papertree.item(papertree.selection())['text'],))
             conn.commit()
@@ -1194,12 +1194,12 @@ def runfunction():
                 pass       
             if values =="all":
                 filename=filedialog.asksaveasfilename()
-                conn = sqlite3.connect(resource_path(url))
+                conn = sqlite3.connect(resource_path(baredatabaseurl))
                 c = conn.cursor()
                 c.execute("SELECT BibTex FROM Articles")
             else:
                 filename = filedialog.asksaveasfilename()
-                conn = sqlite3.connect(resource_path(url))
+                conn = sqlite3.connect(resource_path(baredatabaseurl))
                 c = conn.cursor()
                 c.execute("""SELECT BibTex FROM Articles WHERE 
                         Tag LIKE ?""", (str(values)+ '%',))
@@ -1228,7 +1228,7 @@ def runfunction():
         This function search the database for paper titles with the similar name or word or 
         letter given in the papername search widget
         """
-        conn=sqlite3.connect(resource_path(url))
+        conn=sqlite3.connect(resource_path(baredatabaseurl))
         c=conn.cursor()
         try:
             for item in papertree.get_children():
@@ -1324,7 +1324,7 @@ def runfunction():
     paperdetailtext=Text(labelframe5,height=13,width=67)
     paperdetailtext.grid(row=1,column=0,columnspan=3,rowspan=6,pady=10)
 
-    conn = sqlite3.connect(resource_path(url))
+    conn = sqlite3.connect(resource_path(baredatabaseurl))
     c = conn.cursor()
     c.execute("SELECT text FROM Tags")
     data=c.fetchall()
@@ -1463,7 +1463,7 @@ def runfunction():
     papertree.heading("Tags",text="Tags",anchor=W)
 
 
-    conn=sqlite3.connect(resource_path(url))
+    conn=sqlite3.connect(resource_path(baredatabaseurl))
     c=conn.cursor()
     c.execute("SELECT *,oid FROM Articles")
 
