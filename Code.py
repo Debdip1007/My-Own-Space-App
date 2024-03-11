@@ -947,7 +947,6 @@ def runfunction():
     def paperdatabaseentry():
         authornames=""
         i=0
-        print(josndata)
         for items in josndata["message"]["author"]:
             authornames = authornames + josndata["message"]["author"][i]["given"] + " " + josndata["message"]["author"][i]["family"] + ", "
             i=i+1
@@ -969,7 +968,7 @@ def runfunction():
         paperdetailtext.delete(1.0,END)
         searchdoi.delete(0,END)
         try:
-            conn=sqlite3.connect(resource_path(url))
+            conn=sqlite3.connect(resource_path(baredatabaseurl))
             c = conn.cursor()
             c.execute("SELECT *,oid FROM Articles WHERE oid ="+str(papertree.item(papertree.selection())['text']))
             record=c.fetchall()
@@ -1032,7 +1031,22 @@ def runfunction():
             paperviewbutton.config(state=DISABLED)
             papertagtypes.set("Choose Tag")
 
-
+    def paperview():
+        conn = sqlite3.connect(resource_path(baredatabaseurl))
+        c=conn.cursor()
+        try:
+            c.execute("SELECT URL FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
+            record=c.fetchall()
+            url=record[0][0]
+            webbrowser.open_new_tab(url)
+        except:
+            c.execute("SELECT First_Link FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
+            record=c.fetchall()
+            url=record[0][0]
+            webbrowser.open_new_tab(url)
+        conn.commit()
+        conn.close()
+            
 
 
     #variable definition
@@ -1144,13 +1158,10 @@ def runfunction():
 
         return found, bib
 
-    #Function Definition
-
-
-
     def search():
         doi=searchdois.get()
         if searchdoi.get():
+            load()
             global bib
             found, bib = get_bib_from_doi(doi, abbrev_journal=True, add_abstract=True)
             global abstract
@@ -1158,42 +1169,24 @@ def runfunction():
             founds, josndata = get_json(doi)
             try:
                 titles=josndata["message"]['title'][0]
+                abstract=josndata["message"]['abstract']
+                paperdatabaseentry()
                 papertitlelable.config(text="")
                 paperabstractlable.config(text="")
-                papertitlelable.config(text=titles,wraplength=690,font=my_font1)
+                papertitlelable.configure(text=titles,wraplength=690,font=my_font1)
                 paperabstractlable.config(text=abstract,wraplength=690,font=my_font2)
-                paperdatabaseentry()
                 papertagtypes.set("Choose Tag")
             except:
                 abstract=''
                 titles=josndata["message"]['title'][0]
                 papertitlelable.config(text="")
                 paperabstractlable.config(text="")
-                papertitlelable.config(text=titles,wraplength=690,font=my_font1)
+                papertitlelable.configure(text=titles,wraplength=690,font=my_font1)
                 paperdatabaseentry()
                 papertagtypes.set("Choose Tag")
         else:
             pass
-
-
-    def paperview():
-        conn = sqlite3.connect(resource_path(url))
-        c=conn.cursor()
-        try:
-            c.execute("SELECT URL FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
-            record=c.fetchall()
-            url=record[0][0]
-            webbrowser.open_new_tab(url)
-        except:
-            c.execute("SELECT First_Link FROM Articles WHERE oid = ?",(papertree.item(papertree.selection())['text'],))
-            record=c.fetchall()
-            url=record[0][0]
-            webbrowser.open_new_tab(url)
-        conn.commit()
-        conn.close()
-        
-
-
+    
     def citecopy():
         try:
             values = papertypes.get()
@@ -1221,6 +1214,11 @@ def runfunction():
         except:
             pass
         
+
+
+
+    #Function Definition
+
 
 
 
@@ -1385,7 +1383,7 @@ def runfunction():
     searchpaperauthor=ttk.Entry(labelframe6,width=25,textvariable=searchpaperauthors)
     searchpaperauthor.grid(row=1,column=1,padx=5,pady=5,sticky=NW)
     #traces any chenges or entry to search authors entry widget
-
+    searchpaperauthors.trace_add("write",paperdatasearch)
     #journal Search 
 
     searchjournallable=ttk.Label(labelframe6,text="Search by Journal")
