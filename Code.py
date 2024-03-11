@@ -945,17 +945,18 @@ def runfunction():
 
 
     def paperdatabaseentry():
-        papertagcreate()
         authornames=""
         i=0
-        for items in item["message"]["author"]:
-            authornames = authornames + item["message"]["author"][i]["given"] + " " + item["message"]["author"][i]["family"] + ", "
+        print(josndata)
+        for items in josndata["message"]["author"]:
+            authornames = authornames + josndata["message"]["author"][i]["given"] + " " + josndata["message"]["author"][i]["family"] + ", "
             i=i+1
         conn=sqlite3.connect(resource_path(url))
         c=conn.cursor()
-        c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex, Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(item['message']['title'][0],authornames,item['message']['container-title'][0],item['message']['volume'],item['message']['issue'],item['message'].get('article-number',' '),item['message']['DOI'],item['message']['URL'],item['message']['resource']['primary']['URL'],item['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
+        c.execute("""INSERT INTO Articles (Title, Authors, Journal, Volume, Number, Pages, DOI, URL, First_Link, Year, Abstract, Tag, Detail, BibTex, Date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(josndata['message']['title'][0],authornames,josndata['message']['container-title'][0],josndata['message']['volume'],josndata['message']['issue'],josndata['message'].get('article-number',' '),josndata['message']['DOI'],josndata['message']['URL'],josndata['message']['resource']['primary']['URL'],josndata['message']['published-online']['date-parts'][0][0],abstract,papertype.get(),paperdetailtext.get("1.0",END),bib,date.today())) 
         conn.commit()
         conn.close()
+        papertagcreate()
         paperdetailtext.delete(1.0,END)
         papertagtypes.set("")
         load()
@@ -1153,11 +1154,10 @@ def runfunction():
             global bib
             found, bib = get_bib_from_doi(doi, abbrev_journal=True, add_abstract=True)
             global abstract
-            global item
-            founds, item = get_json(doi)
+            global josndata
+            founds, josndata = get_json(doi)
             try:
-                titles=item["message"]['title'][0]
-                abstract=item["message"]['abstract']
+                titles=josndata["message"]['title'][0]
                 papertitlelable.config(text="")
                 paperabstractlable.config(text="")
                 papertitlelable.config(text=titles,wraplength=690,font=my_font1)
@@ -1166,7 +1166,7 @@ def runfunction():
                 papertagtypes.set("Choose Tag")
             except:
                 abstract=''
-                titles=item["message"]['title'][0]
+                titles=josndata["message"]['title'][0]
                 papertitlelable.config(text="")
                 paperabstractlable.config(text="")
                 papertitlelable.config(text=titles,wraplength=690,font=my_font1)
