@@ -1622,7 +1622,8 @@ def toplevel():
     login_frame.wait_visibility()
     login_frame.grab_set()
     global myappimage
-    myappmainimage=Image.open("assets\\main_picture.ico")
+    myappmainimages=Image.open("assets\\mainlogo.jpeg")
+    myappmainimage=myappmainimages.resize((150,150))
     myappimage=ImageTk.PhotoImage(myappmainimage)
 
 
